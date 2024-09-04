@@ -1,0 +1,42 @@
+drop table abono;
+drop table prestamo;
+drop table banco;
+drop table deudor;
+
+create table banco
+    (ID number(10, 0) generated always as identity,
+    nombre varchar(20) not null,
+    primary key (ID)
+    );
+
+create table deudor
+    (ID number(10, 0) generated always as identity,
+    nombre varchar(20) not null,
+    tipo_doc varchar(2) not null,
+    numero_doc numeric(10, 0) not null,
+    genero char(1) not null check  (genero in('M', 'F')),
+    primary key (ID)
+    );
+
+create table prestamo
+    (ID number(10, 0) generated always as identity, 
+    ID_deudor number(10, 0) not null,
+    ID_banco number(10, 0) not null,
+    fecha date default sysdate not null,
+    valor_otorgado numeric(10, 0) default 0 not null check (valor_otorgado > 0),
+    pagado char(2) default 'no' not null check(pagado in('si', 'no')),
+    primary key(ID),
+    foreign key(ID_deudor) references deudor(ID),
+    foreign key(ID_banco) references banco(ID),
+    constraint UQ_prestamo unique (ID_banco, ID_deudor, fecha)
+    );
+
+create table abono
+    (ID number(10, 0) generated always as identity, 
+    ID_prestamo number(10, 0) not null,
+    fecha date default sysdate not null,
+    valor_abono numeric(10, 0) default 0 not null check (valor_abono >= 0),
+    primary key(ID),
+    foreign key(ID_prestamo) references prestamo(ID),
+    constraint UQ_abono unique (ID_prestamo, fecha)
+    );
